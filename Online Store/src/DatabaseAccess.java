@@ -131,7 +131,7 @@ public class DatabaseAccess {
 				//result set exists, manipulate here
 				while(rs.next()){
 					p.ProductID = rs.getInt("ItemID");
-					p.InStock = 0; //Dummy
+					p.InStock = rs.getInt("QuantityOnHand");
 					p.Name = rs.getString("Name");
 					p.Price = rs.getDouble("Cost");
 					p.Description = rs.getString("Description");
