@@ -82,7 +82,7 @@ public class DatabaseAccess {
 						p.ProductID = rs.getInt("ItemID");
 						p.Name = rs.getString("Name");
 						p.Price = rs.getDouble("Cost");
-						p.Description = getString("Description");
+						p.Description = rs.getString("Description");
                   p.InStock = rs.getInt("QualityOnHand");
 						products.add(p);
 					}
