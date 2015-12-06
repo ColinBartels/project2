@@ -38,34 +38,40 @@ public class DatabaseAccess {
 	
 	public static Order [] GetPendingOrders()
 	{
-		ArrayList <Order> pendingOrders = new ArrayList<>();
+		Order[] pendingOrders = new Order[]{};
 		String query = "SELECT * FROM Customer";
-
 		try {
 			ResultSet rs = getResults(query);
-			if (rs != null) {
-				//result set exists, manipulate here
-				while(rs.next()){
-					Order o = new Order();
-					o.OrderID = 1;
-					o.Customer = new Customer();
-					o.Customer.CustomerID = 1;
-					o.Customer.Name = "Kevin";
-					o.Customer.Email = "kevin@pathology.washington.edu";
-					o.OrderDate = new Date();
-					o.Status = "ORDERED";
-					o.TotalCost = 520.20;
-					o.BillingAddress = "1959 NE Pacific St, Seattle, WA 98195";
-					o.BillingInfo	 = "PO 12345";
-					o.ShippingAddress= "1959 NE Pacific St, Seattle, WA 98195";
+			if (rs != null) { //result set exists, manipulate here
+
+
+				//While results has next, print name
+				/*while(rs.next()){
+					System.out.print(rs.getString("name"));
+					System.out.println();
 				}
+				*/
+
 			}
 		} catch (SQLException e){
 			e.printStackTrace();
 		}
 
-		//return array of customers
-				return pendingOrders.toArray(new Order[pendingOrders.size()]);
+		// DUMMY DATA!
+		Order o = new Order();
+		o.OrderID = 1;
+		o.Customer = new Customer();
+		o.Customer.CustomerID = 1;
+		o.Customer.Name = "Kevin";
+		o.Customer.Email = "kevin@pathology.washington.edu";
+		o.OrderDate = new Date();
+		o.Status = "ORDERED";
+		o.TotalCost = 520.20;
+		o.BillingAddress = "1959 NE Pacific St, Seattle, WA 98195";
+		o.BillingInfo	 = "PO 12345";
+		o.ShippingAddress= "1959 NE Pacific St, Seattle, WA 98195";
+
+		return new Order[]{ o };
 	}
 	
 		// TODO:  Retrieve all the information about the products.
@@ -98,19 +104,22 @@ public class DatabaseAccess {
 		// TODO:  Query the database to get the flight information as well as all 
 		// the reservations.
 		
-		ArrayList <Customer> customers = new ArrayList<>();
-		String query = "SELECT * FROM Customer";
+		String query = "SELECT * FROM Orders WHERE OrderID = " + OrderID;
+		Order o = new Order();
 
 		try {
 			ResultSet rs = getResults(query);
 			if (rs != null) {
 				//result set exists, manipulate here
 				while(rs.next()){
-					Customer c = new Customer();
-					c.CustomerID = rs.getInt("CustomerID");
-					c.Name = rs.getString("FirstName") + " " + rs.getString("LastName");
-					c.Email = rs.getString("Email");
-					customers.add(c);
+					o.OrderID = rs.getInt("OrderID");
+					o.Status = rs.getString("Status");
+					o.Customer = new Customer(); 	//Dummy
+					o.TotalCost = 0.0; 				//Dummy
+					o.LineItems = new LineItem[1]; 	//Dummy
+					o.ShippingAddress = rs.getString("ShippingAddress");
+					o.BillingAddress = rs.getString("BillingAddress");
+					o.BillingInfo = rs.getString("BillingInfo");
 				}
 			}
 		} catch (SQLException e){
@@ -118,8 +127,12 @@ public class DatabaseAccess {
 		}
 
 		//return array of customers
+<<<<<<< HEAD
 		//return customers.toArray(new Customer[customers.size()]);
 		return null;
+=======
+		return o;
+>>>>>>> origin/master
 	}
 
 	public static Product GetProductDetails (int ProductID)
