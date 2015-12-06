@@ -38,40 +38,34 @@ public class DatabaseAccess {
 	
 	public static Order [] GetPendingOrders()
 	{
-		Order[] pendingOrders = new Order[]{};
+		ArrayList <Order> pendingOrders = new ArrayList<>();
 		String query = "SELECT * FROM Customer";
+
 		try {
 			ResultSet rs = getResults(query);
-			if (rs != null) { //result set exists, manipulate here
-
-
-				//While results has next, print name
-				/*while(rs.next()){
-					System.out.print(rs.getString("name"));
-					System.out.println();
+			if (rs != null) {
+				//result set exists, manipulate here
+				while(rs.next()){
+					Order o = new Order();
+					o.OrderID = 1;
+					o.Customer = new Customer();
+					o.Customer.CustomerID = 1;
+					o.Customer.Name = "Kevin";
+					o.Customer.Email = "kevin@pathology.washington.edu";
+					o.OrderDate = new Date();
+					o.Status = "ORDERED";
+					o.TotalCost = 520.20;
+					o.BillingAddress = "1959 NE Pacific St, Seattle, WA 98195";
+					o.BillingInfo	 = "PO 12345";
+					o.ShippingAddress= "1959 NE Pacific St, Seattle, WA 98195";
 				}
-				*/
-
 			}
 		} catch (SQLException e){
 			e.printStackTrace();
 		}
 
-		// DUMMY DATA!
-		Order o = new Order();
-		o.OrderID = 1;
-		o.Customer = new Customer();
-		o.Customer.CustomerID = 1;
-		o.Customer.Name = "Kevin";
-		o.Customer.Email = "kevin@pathology.washington.edu";
-		o.OrderDate = new Date();
-		o.Status = "ORDERED";
-		o.TotalCost = 520.20;
-		o.BillingAddress = "1959 NE Pacific St, Seattle, WA 98195";
-		o.BillingInfo	 = "PO 12345";
-		o.ShippingAddress= "1959 NE Pacific St, Seattle, WA 98195";
-
-		return new Order[]{ o };
+		//return array of customers
+				return pendingOrders.toArray(new Order[pendingOrders.size()]);
 	}
 	
 	public static Product[] GetProducts()
