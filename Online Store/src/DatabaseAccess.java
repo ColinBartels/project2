@@ -93,30 +93,27 @@ public class DatabaseAccess {
 		// TODO:  Query the database to get the flight information as well as all 
 		// the reservations.
 		
-		// DUMMY DATA FOLLOWS
-		Order o = new Order();
-		o.OrderID = 1;
-		o.Customer = new Customer();
-		o.Customer.CustomerID = 1;
-		o.Customer.Name = "Kevin";
-		o.Customer.Email = "kevin@pathology.washington.edu";
-		o.OrderDate = new Date();
-		o.Status = "ORDERED";
-		o.TotalCost = 520.20;
-		o.BillingAddress = "1959 NE Pacific St, Seattle, WA 98195";
-		o.BillingInfo	 = "PO 12345";
-		o.ShippingAddress= "1959 NE Pacific St, Seattle, WA 98195";
+		ArrayList <Customer> customers = new ArrayList<>();
+		String query = "SELECT * FROM Customer";
 
-		LineItem li = new LineItem();
-		li.Order = o;
-		li.PricePaid = 540.00;
-		li.Product = new Product();
-		li.Product.Description = "A great product.";
-		li.Product.Name = "Computer Mouse";
-		li.Quantity = 2;
-		
-		o.LineItems = new LineItem[] {li};
-		return o;
+		try {
+			ResultSet rs = getResults(query);
+			if (rs != null) {
+				//result set exists, manipulate here
+				while(rs.next()){
+					Customer c = new Customer();
+					c.CustomerID = rs.getInt("CustomerID");
+					c.Name = rs.getString("FirstName") + " " + rs.getString("LastName");
+					c.Email = rs.getString("Email");
+					customers.add(c);
+				}
+			}
+		} catch (SQLException e){
+			e.printStackTrace();
+		}
+
+		//return array of customers
+		return customers.toArray(new Customer[customers.size()]);
 	}
 
 	public static Product GetProductDetails (int ProductID)
@@ -133,8 +130,7 @@ public class DatabaseAccess {
 		
 	}
 	
-	public static Customer [] GetCustomers ()
-	{
+	public static Customer [] GetCustomers () {
 		ArrayList <Customer> customers = new ArrayList<>();
 		String query = "SELECT * FROM Customer";
 
