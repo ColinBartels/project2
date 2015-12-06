@@ -181,21 +181,34 @@ public class DatabaseAccess {
 	
 	public static Order [] GetCustomerOrders (Customer c)
 	{
-		Order o = new Order();
-		o.OrderID = 1;
-		o.Customer = new Customer();
-		o.Customer.CustomerID = 1;
-		o.Customer.Name = "Kevin";
-		o.Customer.Email = "kevin@pathology.washington.edu";
-		o.OrderDate = new Date();
-		o.Status = "ORDERED";
-		o.TotalCost = 520.20;
-		o.BillingAddress = "1959 NE Pacific St, Seattle, WA 98195";
-		o.BillingInfo	 = "PO 12345";
-		o.ShippingAddress= "1959 NE Pacific St, Seattle, WA 98195";
+		ArrayList <Order> orders = new ArrayList<>();
+      String query = "SELECT * FROM Orders WHERE CustomerID = " + c.CustomerID;
+      
+      try {
+            ResultSet rs = getResults(query);
+            if (rs != null) {
+               
+               while(rs.next()){
+                     Order o = new Order();
+                     o.OrderID = rs.getInt("OrderID");
+                     o.Status = rs.getString("Status");
+                     o.Customer = new Customer(); 	//Dummy
+					      o.TotalCost = 0.0; 				//Dummy
+					      o.LineItems = new LineItem[1]; 	//Dummy
+					      o.ShippingAddress = rs.getString("ShippingAddress");
+					      o.BillingAddress = rs.getString("BillingAddress");
+					      o.BillingInfo = rs.getString("BillingInfo");
+				         orders.add(o);
+               }
+			   }
+		   } catch (SQLException e){
+			      e.printStackTrace();
+		   }
 
-		return new Order [] { o };
-	}
+		   //return order
+		   return orders.toArray(new Order[orders.size()]);
+	   }
+                     
 	
 	public static Product [] SearchProductReviews(String query)
 	{
