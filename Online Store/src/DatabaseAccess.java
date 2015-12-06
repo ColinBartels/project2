@@ -74,30 +74,19 @@ public class DatabaseAccess {
 		return new Order[]{ o };
 	}
 	
-		// TODO:  Retrieve all the information about the products.
 	public static Product[] GetProducts()
 	{
-		ArrayList <Product> products = new ArrayList<>();
-		String query = "SELECT * FROM Product";
-			
-		try {
-				ResultSet rs = getResults(query);
-				if (rs != null) {
-					while(rs.next()) {
-						Product p = new Product();
-						p.ProductID = rs.getInt("ItemID");
-						p.Name = rs.getString("Name");
-						p.Price = rs.getDouble("Cost");
-						p.Description = rs.getString("Description");
-                  p.InStock = rs.getInt("QualityOnHand");
-						products.add(p);
-					}
-				}
-			} catch (SQLException e) {
-					e.printStackTrace();
-			}
-				return products.toArray(new Product[products.size()]);
-			}
+		// TODO:  Retrieve all the information about the products.
+		
+		// DUMMY VALUES
+		Product p = new Product();
+		p.Description = "A great monitor";
+		p.Name = "Monitor, 19 in";
+		p.InStock = 10;
+		p.Price = 196;
+		p.ProductID = 1;
+		return new Product [] { p } ;
+	}
 
 	public static Order GetOrderDetails(int OrderID)
 	{
@@ -126,14 +115,16 @@ public class DatabaseAccess {
 			e.printStackTrace();
 		}
 
-		//return order
+		//return array of customers
 		return o;
 	}
 
 	public static Product GetProductDetails (int ProductID)	{
-		String query = "SELECT * FROM Products WHERE ItemID = " + ProductID;
+		String query = "SELECT * FROM Products WHERE ItemID = " + ProductID + 
+				" JOIN Comments ON Comments.ProductID = Products.ItemID";
 		Product p = new Product();
-
+		ArrayList<String> comments = new ArrayList<>();
+		
 		try {
 			ResultSet rs = getResults(query);
 			if (rs != null) {
@@ -144,13 +135,13 @@ public class DatabaseAccess {
 					p.Name = rs.getString("Name");
 					p.Price = rs.getDouble("Cost");
 					p.Description = rs.getString("Description");
-					p.UserComments = new String[1]; //Dummy
+					comments.add(rs.getString("Comment Text"));
 				}
 			}
 		} catch (SQLException e){
 			e.printStackTrace();
 		}
-
+		p.UserComments = comments.toArray(new String[comments.size()]);
 		return p;
 		
 	}
