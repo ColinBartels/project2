@@ -119,16 +119,27 @@ public class DatabaseAccess {
 		return o;
 	}
 
-	public static Product GetProductDetails (int ProductID)
-	{
+	public static Product GetProductDetails (int ProductID)	{
+		String query = "SELECT * FROM Products WHERE ItemID = " + ProductID;
 		Product p = new Product();
-		p.Description = "A great monitor";
-		p.Name = "Monitor, 19 in";
-		p.InStock = 10;
-		p.Price = 196;
-		p.ProductID = ProductID;
-		p.UserComments = new String [] { "I bought this product last year and it's still the best monitor I've had.", "After 6 months the color started going out, not sure if it was just mine or all of them" };
-		
+
+		try {
+			ResultSet rs = getResults(query);
+			if (rs != null) {
+				//result set exists, manipulate here
+				while(rs.next()){
+					p.ProductID = rs.getInt("ItemID");
+					p.InStock = 0; //Dummy
+					p.Name = rs.getString("Name");
+					p.Price = rs.getDouble("Cost");
+					p.Description = rs.getString("Description");
+					p.UserComments = new String[1]; //Dummy
+				}
+			}
+		} catch (SQLException e){
+			e.printStackTrace();
+		}
+
 		return p;
 		
 	}
