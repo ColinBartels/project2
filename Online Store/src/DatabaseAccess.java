@@ -126,13 +126,8 @@ public class DatabaseAccess {
 			e.printStackTrace();
 		}
 
-		//return array of customers
-<<<<<<< HEAD
-		//return customers.toArray(new Customer[customers.size()]);
-		return null;
-=======
+		//return order
 		return o;
->>>>>>> origin/master
 	}
 
 	public static Product GetProductDetails (int ProductID)	{
