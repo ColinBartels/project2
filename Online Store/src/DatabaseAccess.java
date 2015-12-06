@@ -1,14 +1,62 @@
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.Date;
 import javax.swing.JOptionPane;
 
 
 public class DatabaseAccess {
+
+	private static ResultSet getResults(String query) throws SQLException {
+		// Access database and run query
+
+		try {
+			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+
+			//Set login info here
+			String url = "jdbc:sqlserver://is-fleming.ischool.uw.edu";
+			String user = "perry";
+			String pass = "Info340C";
+
+			Connection conn = DriverManager.getConnection(url, user, pass);
+
+			//Set database here
+			conn.setCatalog("Store");
+
+			//Call query and store in memory as rs
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+
+			return rs;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		//Result set failed, return null
+		return null;
+	}
 	
 	public static Order [] GetPendingOrders()
 	{
-		// TODO:  Query the database and retrieve the information.
-		// resultset.findcolumn(string col)
-		
+		Order[] pendingOrders = new Order[]{};
+		String query = "SELECT * FROM Customer";
+		try {
+			ResultSet rs = getResults(query);
+			if (rs != null) { //result set exists, manipulate here
+
+
+				//While results has next, print name
+				/*while(rs.next()){
+					System.out.print(rs.getString("name"));
+					System.out.println();
+				}
+				*/
+
+			}
+		} catch (SQLException e){
+			e.printStackTrace();
+		}
+
 		// DUMMY DATA!
 		Order o = new Order();
 		o.OrderID = 1;
@@ -22,7 +70,8 @@ public class DatabaseAccess {
 		o.BillingAddress = "1959 NE Pacific St, Seattle, WA 98195";
 		o.BillingInfo	 = "PO 12345";
 		o.ShippingAddress= "1959 NE Pacific St, Seattle, WA 98195";
-		return new Order [] { o };
+
+		return new Order[]{ o };
 	}
 	
 	public static Product[] GetProducts()
@@ -86,25 +135,27 @@ public class DatabaseAccess {
 	
 	public static Customer [] GetCustomers ()
 	{
-		// TODO:  Query the database to retrieve a list of customers.
-		
-		// DUMMY VALUES FOLLOW
-		Customer c1 = new Customer();
-		c1.CustomerID = 1;
-		c1.Email = "k@u";
-		c1.Name = "Kevin Fleming";
-		
-		Customer c2 = new Customer();
-		c2.CustomerID = 2;
-		c2.Email = "k@u";
-		c2.Name = "Niki Cassaro";
+		ArrayList <Customer> customers = new ArrayList<>();
+		String query = "SELECT * FROM Customer";
 
-		Customer c3 = new Customer();
-		c3.CustomerID = 3;
-		c3.Email = "k@u";
-		c3.Name = "Ava Fleming";
-		
-		return new Customer [] { c1, c2, c3 };
+		try {
+			ResultSet rs = getResults(query);
+			if (rs != null) {
+				//result set exists, manipulate here
+				while(rs.next()){
+					Customer c = new Customer();
+					c.CustomerID = rs.getInt("CustomerID");
+					c.Name = rs.getString("FirstName") + " " + rs.getString("LastName");
+					c.Email = rs.getString("Email");
+					customers.add(c);
+				}
+			}
+		} catch (SQLException e){
+			e.printStackTrace();
+		}
+
+		//return array of customers
+		return customers.toArray(new Customer[customers.size()]);
 	}
 	
 	public static Order [] GetCustomerOrders (Customer c)
