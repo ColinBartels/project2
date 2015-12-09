@@ -38,40 +38,53 @@ public class DatabaseAccess {
 	
 	public static Order [] GetPendingOrders()
 	{
-		Order[] pendingOrders = new Order[]{};
-		String query = "SELECT * FROM Customer";
+		ArrayList<Order> orders = new ArrayList<>();
+		String query = "SELECT * FROM Orders JOIN Customer on "
+				+ "Customer.CustomerID = Orders.CustomerID ";
 		try {
 			ResultSet rs = getResults(query);
-			if (rs != null) { //result set exists, manipulate here
-
-
-				//While results has next, print name
-				/*while(rs.next()){
-					System.out.print(rs.getString("name"));
-					System.out.println();
+			if (rs != null) { 
+				//result set exists, manipulate here
+				while(rs.next()){
+					if (rs.getString("Status") == "pending") {
+						System.out.println(rs.getInt("OrderID"));
+						Order o = new Order();
+						o.OrderID = rs.getInt("OrderID");
+						o.Customer = new Customer();
+						o.Customer.CustomerID = rs.getInt("CustomerID");
+						o.Customer.Name = rs.getString("FirstName") + rs.getString("LastName");
+						o.Customer.Email = rs.getString("Email");
+						o.OrderDate = new Date();
+						o.Status = rs.getString("Status");
+						double cost = 0.0;
+						
+						//find all products placed for specific order
+						String innerQuery = "SELECT * FROM LineItems WHERE OrderID = " + o.OrderID;
+						try {
+							ResultSet li = getResults(innerQuery);
+							if (li != null) { 
+								while (li.next()) {
+									cost +=  li.getDouble("PricePaid") * li.getInt("Quantity");
+								}
+							}
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+						//assign total cost
+						o.TotalCost = cost;
+						o.BillingAddress = rs.getString("BillingAddress");
+						o.BillingInfo = rs.getString("BillingInfo");
+						o.ShippingAddress= rs.getString("ShippingAddress");
+						orders.add(o);
+					}
 				}
-				*/
-
 			}
 		} catch (SQLException e){
 			e.printStackTrace();
 		}
-
-		// DUMMY DATA!
-		Order o = new Order();
-		o.OrderID = 1;
-		o.Customer = new Customer();
-		o.Customer.CustomerID = 1;
-		o.Customer.Name = "Kevin";
-		o.Customer.Email = "kevin@pathology.washington.edu";
-		o.OrderDate = new Date();
-		o.Status = "ORDERED";
-		o.TotalCost = 520.20;
-		o.BillingAddress = "1959 NE Pacific St, Seattle, WA 98195";
-		o.BillingInfo	 = "PO 12345";
-		o.ShippingAddress= "1959 NE Pacific St, Seattle, WA 98195";
-
-		return new Order[]{ o };
+		
+		//return order array
+		return orders.toArray(new Order[orders.size()]);
 	}
 	
 	public static Product[] GetProducts()
@@ -114,8 +127,6 @@ public class DatabaseAccess {
 		} catch (SQLException e){
 			e.printStackTrace();
 		}
-
-		//return array of customers
 		return o;
 	}
 
