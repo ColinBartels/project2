@@ -240,10 +240,6 @@ public class DatabaseAccess {
 		String address = "";
 		Date OrderDate = new Date();
 		String Status = "Pending";
-		double TotalCost = 0.0;
-		for (int i = 0; i < LineItems.length; i++) {
-    		TotalCost += LineItems[i].PricePaid;
-    	}
 		String BillingAddress = "";
 		String ShippingAddress = "";
 		String BillingInfo = "Visa";
@@ -261,7 +257,7 @@ public class DatabaseAccess {
 	    }
 		
 		String insert = "INSERT INTO Orders (OrderDate, BillingAddress, BillingInfo, ShippingAddress, Status, CustomerID) "
-				+ "VALUES (" + OrderDate.toString() + ", " + BillingAddress + ", " + ShippingAddress + ", " + Status + ", " + c.CustomerID + ");";
+				+ "VALUES (" + OrderDate.toString() + ", " + BillingAddress + ", " + BillingInfo + ", " + ShippingAddress + ", " + Status + ", " + c.CustomerID + ");";
 		
 		try {
             ResultSet rs = getResults(insert);
