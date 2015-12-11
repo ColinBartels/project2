@@ -261,7 +261,7 @@ public class DatabaseAccess {
 		java.sql.Date sqlDate = new java.sql.Date(OrderDate.getTime());
 		
 		String insert = "INSERT INTO Orders (OrderDate, BillingAddress, BillingInfo, ShippingAddress, Status, CustomerID) "
-				+ "VALUES (" + sqlDate + ", " + "'" + BillingAddress + "'" + ", " + BillingInfo + ", " + "'" + ShippingAddress + "'" + ", " + Status + ", " + c.CustomerID + ");";
+				+ "VALUES (" + sqlDate + ", " + "'" + BillingAddress + "'" + ", " + "'" + BillingInfo + "'" + ", " + "'" + ShippingAddress + "'" + ", " + "'" + Status + "'" + ", " + c.CustomerID + ");";
 		
 		System.out.println(insert);
 		try {
