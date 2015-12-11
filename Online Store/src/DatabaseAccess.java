@@ -76,16 +76,26 @@ public class DatabaseAccess {
 	
 	public static Product[] GetProducts()
 	{
-		// TODO:  Retrieve all the information about the products.
-		
-		// DUMMY VALUES
-		Product p = new Product();
-		p.Description = "A great monitor";
-		p.Name = "Monitor, 19 in";
-		p.InStock = 10;
-		p.Price = 196;
-		p.ProductID = 1;
-		return new Product [] { p } ;
+		ArrayList <Product> products = new ArrayList<>();
+		String query = "SELECT * FROM Product";
+
+		try {
+			ResultSet rs = getResults(query);
+			if (rs != null) {
+				while(rs.next()) {
+					Product p = new Product();
+					p.ProductID = rs.getInt("ItemID");
+					p.Name = rs.getString("Name");
+					p.Price = rs.getDouble("Cost");
+					p.Description = rs.getString("Description");
+					p.InStock = rs.getInt("QualityOnHand");
+					products.add(p);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return products.toArray(new Product[products.size()]);
 	}
 
 	public static Order GetOrderDetails(int OrderID)
