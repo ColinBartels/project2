@@ -39,12 +39,16 @@ public class DatabaseAccess {
 	public static Order [] GetPendingOrders()
 	{
 		ArrayList<Order> orders = new ArrayList<>();
-		String query = "SELECT * FROM Orders JOIN Customer on "
-				+ "Customer.CustomerID = Orders.CustomerID ";
+		String query = "SELECT * FROM Orders "
+				+ "JOIN Customer on Customer.CustomerID = Orders.CustomerID "
+				+ "JOIN LineItems on LineItems.OrderID = Orders.OrderID"
+				+ "ORDER BY LineItems.OrderID";
 		try {
 			ResultSet rs = getResults(query);
 			if (rs != null) { 
 				//result set exists, manipulate here
+				int id = -1;
+				double cost = 0.0;
 				while(rs.next()){
 					if (rs.getString("Status") == "pending") {
 						System.out.println(rs.getInt("OrderID"));
@@ -56,25 +60,22 @@ public class DatabaseAccess {
 						o.Customer.Email = rs.getString("Email");
 						o.OrderDate = new Date();
 						o.Status = rs.getString("Status");
-						double cost = 0.0;
-						
-						//find all products placed for specific order
-						String innerQuery = "SELECT * FROM LineItems WHERE OrderID = " + o.OrderID;
-						try {
-							ResultSet li = getResults(innerQuery);
-							if (li != null) { 
-								while (li.next()) {
-									cost +=  li.getDouble("PricePaid") * li.getInt("Quantity");
-								}
-							}
-						} catch (SQLException e) {
-							e.printStackTrace();
+						if (o.OrderID == id) {
+							//Current lineitem row is in the same order as the previous one
+							// -> add to cost
+							cost +=  rs.getDouble("PricePaid") * rs.getInt("Quantity");
+						} else {
+							//This lineitem is for a different order than the previous one
+							// -> overwrite cost
+							cost =  rs.getDouble("PricePaid") * rs.getInt("Quantity");
 						}
+						
 						//assign total cost
 						o.TotalCost = cost;
 						o.BillingAddress = rs.getString("BillingAddress");
 						o.BillingInfo = rs.getString("BillingInfo");
 						o.ShippingAddress= rs.getString("ShippingAddress");
+						id = o.OrderID;
 						orders.add(o);
 					}
 				}
@@ -102,10 +103,7 @@ public class DatabaseAccess {
 	}
 
 	public static Order GetOrderDetails(int OrderID)
-	{
-		// TODO:  Query the database to get the flight information as well as all 
-		// the reservations.
-		
+	{		
 		String query = "SELECT * FROM Orders WHERE OrderID = " + OrderID;
 		Order o = new Order();
 
