@@ -41,7 +41,7 @@ public class DatabaseAccess {
 		ArrayList<Order> orders = new ArrayList<>();
 		String query = "SELECT * FROM Orders "
 				+ "JOIN Customer on Customer.CustomerID = Orders.CustomerID "
-				+ "JOIN LineItems on LineItems.OrderID = Orders.OrderID"
+				+ "JOIN LineItems on LineItems.OrderID = Orders.OrderID "
 				+ "ORDER BY LineItems.OrderID";
 		try {
 			ResultSet rs = getResults(query);
