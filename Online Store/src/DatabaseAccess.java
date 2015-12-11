@@ -91,7 +91,7 @@ public class DatabaseAccess {
 	public static Product[] GetProducts()
 	{
 		ArrayList <Product> products = new ArrayList<>();
-		String query = "SELECT * FROM Product";
+		String query = "SELECT * FROM Products";
 
 		try {
 			ResultSet rs = getResults(query);
