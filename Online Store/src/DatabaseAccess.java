@@ -243,6 +243,7 @@ public class DatabaseAccess {
 		String BillingAddress = "";
 		String ShippingAddress = "";
 		String BillingInfo = "Visa";
+		System.out.println(c.CustomerID);
 		
 		try {
             ResultSet rs = getResults(query);
@@ -256,11 +257,14 @@ public class DatabaseAccess {
 		      e.printStackTrace();
 	    }
 		
-		String insert = "INSERT INTO Orders (OrderDate, BillingAddress, BillingInfo, ShippingAddress, Status, CustomerID) "
-				+ "VALUES (" + OrderDate.toString() + ", " + BillingAddress + ", " + BillingInfo + ", " + ShippingAddress + ", " + Status + ", " + c.CustomerID + ");";
+		java.sql.Date sqlDate = new java.sql.Date(OrderDate.getTime());
 		
+		String insert = "INSERT INTO Orders (OrderDate, BillingAddress, BillingInfo, ShippingAddress, Status, CustomerID) "
+				+ "VALUES (" + sqlDate + ", " + BillingAddress + ", " + BillingInfo + ", " + ShippingAddress + ", " + Status + ", " + c.CustomerID + ");";
+		
+		System.out.println(insert);
 		try {
-            ResultSet rs = getResults(insert);
+            getResults(insert);
         } catch (SQLException e){
 		      e.printStackTrace();
 	    }
