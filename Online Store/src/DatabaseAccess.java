@@ -139,8 +139,9 @@ public class DatabaseAccess {
 	}
 
 	public static Product GetProductDetails (int ProductID)	{
-		String query = "SELECT * FROM Products WHERE ItemID = " + ProductID + 
-				" JOIN Comments ON Comments.ProductID = Products.ItemID";
+		String query = "SELECT * FROM Products" + 
+				" JOIN Comments ON Comments.ProductID = Products.ItemID" + 
+				" WHERE ItemID = " + ProductID;
 		Product p = new Product();
 		ArrayList<String> comments = new ArrayList<>();
 		
@@ -154,7 +155,7 @@ public class DatabaseAccess {
 					p.Name = rs.getString("Name");
 					p.Price = rs.getDouble("Cost");
 					p.Description = rs.getString("Description");
-					comments.add(rs.getString("Comment Text"));
+					comments.add(rs.getString("CommentText"));
 				}
 			}
 		} catch (SQLException e){
