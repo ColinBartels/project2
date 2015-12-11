@@ -265,10 +265,25 @@ public class DatabaseAccess {
 		
 		System.out.println(insert);
 		try {
-            getResults(insert);
-        } catch (SQLException e){
-		      e.printStackTrace();
-	    }
+			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+
+			//Set login info here
+			String url = "jdbc:sqlserver://is-fleming.ischool.uw.edu";
+			String user = "perry";
+			String pass = "Info340C";
+
+			Connection conn = DriverManager.getConnection(url, user, pass);
+
+			//Set database here
+			conn.setCatalog("Store");
+
+			//Call query and store in memory as rs
+			Statement stmt = conn.createStatement();
+			stmt.executeQuery(query);
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		JOptionPane.showMessageDialog(null, "Create order for " + c.Name + " for " + Integer.toString(LineItems.length) + " items.");
 	}
