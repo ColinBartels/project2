@@ -248,6 +248,7 @@ public class DatabaseAccess {
 		try {
             ResultSet rs = getResults(query);
             if (rs != null) {
+            	rs.next();
             	address = rs.getString("AddressRecord");
             	
             	BillingAddress = address;
