@@ -233,10 +233,41 @@ public class DatabaseAccess {
 		return new Product [] { p} ;
 	}
 	                    
-	public static void MakeOrder(Customer c, LineItem [] LineItems)
-	{
+	public static void MakeOrder(Customer c, LineItem [] LineItems)	{
 		// TODO: Insert data into your database.
 		// Show an error message if you can not make the reservation.
+		String query = "SELECT AddressRecord FROM Customer WHERE Customer.CustomerID = " + c.CustomerID;
+		String address = "";
+		Date OrderDate = new Date();
+		String Status = "Pending";
+		double TotalCost = 0.0;
+		for (int i = 0; i < LineItems.length; i++) {
+    		TotalCost += LineItems[i].PricePaid;
+    	}
+		String BillingAddress = "";
+		String ShippingAddress = "";
+		String BillingInfo = "Visa";
+		
+		try {
+            ResultSet rs = getResults(query);
+            if (rs != null) {
+            	address = rs.getString("AddressRecord");
+            	
+            	BillingAddress = address;
+            	ShippingAddress = address;
+            }
+        } catch (SQLException e){
+		      e.printStackTrace();
+	    }
+		
+		String insert = "INSERT INTO Orders (OrderDate, BillingAddress, BillingInfo, ShippingAddress, Status, CustomerID) "
+				+ "VALUES (" + OrderDate.toString() + ", " + BillingAddress + ", " + ShippingAddress + ", " + Status + ", " + c.CustomerID + ");";
+		
+		try {
+            ResultSet rs = getResults(insert);
+        } catch (SQLException e){
+		      e.printStackTrace();
+	    }
 		
 		JOptionPane.showMessageDialog(null, "Create order for " + c.Name + " for " + Integer.toString(LineItems.length) + " items.");
 	}
