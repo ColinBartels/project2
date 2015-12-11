@@ -114,27 +114,42 @@ public class DatabaseAccess {
 
 	public static Order GetOrderDetails(int OrderID)
 	{		
-		String query = "SELECT * FROM Orders WHERE OrderID = " + OrderID;
+		String query = "SELECT * FROM Orders "
+				+ "JOIN Customer on Customer.CustomerID = Orders.CustomerID "
+				+ "JOIN LineItems on LineItems.OrderID = Orders.OrderID "
+				+ "WHERE Orders.OrderID = " + OrderID;
+		
 		Order o = new Order();
 
 		try {
 			ResultSet rs = getResults(query);
-			if (rs != null) {
+			if (rs != null) { 
 				//result set exists, manipulate here
+				int id = -1;
+				double cost = 0.0;
 				while(rs.next()){
+					System.out.println(rs.getInt("OrderID"));
 					o.OrderID = rs.getInt("OrderID");
+					o.Customer = new Customer();
+					o.Customer.CustomerID = rs.getInt("CustomerID");
+					o.Customer.Name = rs.getString("FirstName") + rs.getString("LastName");
+					o.Customer.Email = rs.getString("Email");
+					o.OrderDate = new Date();
 					o.Status = rs.getString("Status");
-					o.Customer = new Customer(); 	//Dummy
-					o.TotalCost = 0.0; 				//Dummy
-					o.LineItems = new LineItem[1]; 	//Dummy
-					o.ShippingAddress = rs.getString("ShippingAddress");
+					cost +=  rs.getDouble("PricePaid") * rs.getInt("Quantity");
+					
+					//assign total cost
+					o.TotalCost = cost;
 					o.BillingAddress = rs.getString("BillingAddress");
 					o.BillingInfo = rs.getString("BillingInfo");
+					o.ShippingAddress= rs.getString("ShippingAddress");
 				}
 			}
 		} catch (SQLException e){
 			e.printStackTrace();
 		}
+		
+		//return order array
 		return o;
 	}
 
