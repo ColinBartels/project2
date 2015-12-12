@@ -50,14 +50,15 @@ public class DatabaseAccess {
 				int id = -1;
 				double cost = 0.0;
 				while(rs.next()){
-					if (rs.getString("Status").equals("Pending")) {
+					if (rs.getString("Status").equals("Pending") ||
+							rs.getString("Status").equals("pending")) {
 						Order o = new Order();
 						o.OrderID = rs.getInt("OrderID");
 						o.Customer = new Customer();
 						o.Customer.CustomerID = rs.getInt("CustomerID");
 						o.Customer.Name = rs.getString("FirstName") + rs.getString("LastName");
 						o.Customer.Email = rs.getString("Email");
-						o.OrderDate = new Date();
+						o.OrderDate = rs.getDate("OrderDate");
 						o.Status = rs.getString("Status");
 						if (o.OrderID == id) {
 							//Current lineitem row is in the same order as the previous one
@@ -116,7 +117,10 @@ public class DatabaseAccess {
 		String query = "SELECT * FROM Orders "
 				+ "JOIN Customer on Customer.CustomerID = Orders.CustomerID "
 				+ "JOIN LineItems on LineItems.OrderID = Orders.OrderID "
-				+ "WHERE Orders.OrderID = " + OrderID;
+				+ "JOIN Products on Products.ItemID = LineItems.ProductID "
+				+ "JOIN Comments on Comments.ProductID = Products.ItemID "
+				+ "WHERE Orders.OrderID = " + OrderID
+				+ " ORDER BY Comments.ProductID";
 		
 		Order o = new Order();
 
@@ -124,8 +128,10 @@ public class DatabaseAccess {
 			ResultSet rs = getResults(query);
 			if (rs != null) { 
 				//result set exists, manipulate here
-				int id = -1;
 				double cost = 0.0;
+				ArrayList<LineItem> items = new ArrayList<>();
+				ArrayList<String> comments = new ArrayList<>();
+				int commentId = -1;
 				while(rs.next()){
 					System.out.println(rs.getInt("OrderID"));
 					o.OrderID = rs.getInt("OrderID");
@@ -133,7 +139,7 @@ public class DatabaseAccess {
 					o.Customer.CustomerID = rs.getInt("CustomerID");
 					o.Customer.Name = rs.getString("FirstName") + rs.getString("LastName");
 					o.Customer.Email = rs.getString("Email");
-					o.OrderDate = new Date();
+					o.OrderDate = rs.getDate("OrderDate");
 					o.Status = rs.getString("Status");
 					cost +=  rs.getDouble("PricePaid") * rs.getInt("Quantity");
 					
@@ -142,7 +148,35 @@ public class DatabaseAccess {
 					o.BillingAddress = rs.getString("BillingAddress");
 					o.BillingInfo = rs.getString("BillingInfo");
 					o.ShippingAddress= rs.getString("ShippingAddress");
+					
+					//build up the lineitems
+					LineItem li = new LineItem();
+					li.Order = o;
+					li.Quantity = rs.getInt("Quantity");
+					li.PricePaid = rs.getDouble("PricePaid");
+					
+					//products to append to lineitem
+					Product p = new Product();
+					p.ProductID = rs.getInt("ItemID");
+					p.InStock = rs.getInt("QuantityOnHand");
+					p.Name = rs.getString("Name");
+					p.Price = rs.getDouble("Cost");
+					p.Description = rs.getString("Description");
+					
+					//comments to append to product
+					String comment = rs.getString("CommentText");
+					if (rs.getInt("ProductID") == commentId) {
+						//comment is for the same product as previous
+						comments.add(comment);
+						p.UserComments = comments.toArray(new String[comments.size()]);
+					} else {
+						//comment for different product
+						p.UserComments = new String[] {comment};
+					}	
+					li.Product = p;
+					items.add(li);
 				}
+				o.LineItems = items.toArray(new LineItem[items.size()]);
 			}
 		} catch (SQLException e){
 			e.printStackTrace();
@@ -225,7 +259,7 @@ public class DatabaseAccess {
 						o.Customer.CustomerID = rs.getInt("CustomerID");
 						o.Customer.Name = rs.getString("FirstName") + rs.getString("LastName");
 						o.Customer.Email = rs.getString("Email");
-						o.OrderDate = new Date();
+						o.OrderDate = rs.getDate("OrderDate");
 						o.Status = rs.getString("Status");
 						if (o.OrderID == id) {
 							//Current lineitem row is in the same order as the previous one
@@ -269,8 +303,7 @@ public class DatabaseAccess {
 	}
 	                    
 	public static void MakeOrder(Customer c, LineItem [] LineItems)	{
-		// TODO: Insert data into your database.
-		// Show an error message if you can not make the reservation.
+		// Show an error message if you can not make the transaction
 		String query = "SELECT AddressRecord FROM Customer WHERE Customer.CustomerID = " + c.CustomerID;
 		String address = "";
 		Timestamp OrderDate = new Timestamp(new Date().getTime());
