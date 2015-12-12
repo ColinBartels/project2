@@ -319,14 +319,12 @@ public class DatabaseAccess {
             	
             	BillingAddress = address;
             	ShippingAddress = address;
+            	System.out.println(address);
             }
         } catch (SQLException e){
 		      e.printStackTrace();
-	    }
-
+        }
 		
-		String insert = "INSERT INTO Orders (OrderDate, BillingAddress, BillingInfo, ShippingAddress, Status, CustomerID) "
-				+ "VALUES (" + OrderDate + ", " + "'" + BillingAddress + "'" + ", " + "'" + BillingInfo + "'" + ", " + "'" + ShippingAddress + "'" + ", " + "'" + Status + "'" + ", " + c.CustomerID + ");";
 		
 		try {
 			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -342,9 +340,22 @@ public class DatabaseAccess {
 			conn.setCatalog("Store");
 
 			//Call query and store in memory as rs
-			Statement stmt = conn.createStatement();
-			stmt.executeQuery(query);
-		
+			
+			String insertTableSQL = "INSERT INTO Orders"
+					+ " (OrderDate, BillingAddress, BillingInfo, ShippingAddress, Status, CustomerID) VALUES"
+					+ " (?,?,?,?,?,?)";
+			PreparedStatement preparedStatement = conn.prepareStatement(insertTableSQL);
+			preparedStatement.setTimestamp(1, OrderDate);
+			preparedStatement.setString(2, BillingAddress);
+			preparedStatement.setString(3, BillingInfo);
+			preparedStatement.setString(4, ShippingAddress);
+			preparedStatement.setString(5, Status);
+			preparedStatement.setInt(6, c.CustomerID);
+			preparedStatement.executeUpdate();
+			conn.commit();
+			preparedStatement.close();
+			conn.close();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
