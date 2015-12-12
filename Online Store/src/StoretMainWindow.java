@@ -176,7 +176,6 @@ public class StoretMainWindow {
 			}	
 		}
 	}
-	
 		
 	private static void jButton2ActionPerformed(ActionEvent evt) {
 		new CustomersWindow();

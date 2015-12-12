@@ -50,8 +50,7 @@ public class DatabaseAccess {
 				int id = -1;
 				double cost = 0.0;
 				while(rs.next()){
-					if (rs.getString("Status") == "pending") {
-						System.out.println(rs.getInt("OrderID"));
+					if (rs.getString("Status").equals("Pending")) {
 						Order o = new Order();
 						o.OrderID = rs.getInt("OrderID");
 						o.Customer = new Customer();
@@ -192,29 +191,49 @@ public class DatabaseAccess {
 	public static Order [] GetCustomerOrders (Customer c)
 	{
 		ArrayList <Order> orders = new ArrayList<>();
-      String query = "SELECT * FROM Orders WHERE CustomerID = " + c.CustomerID;
-      
-      try {
-            ResultSet rs = getResults(query);
-            if (rs != null) {
-               
-               while(rs.next()){
-                     Order o = new Order();
-                     o.OrderID = rs.getInt("OrderID");
-                     o.Status = rs.getString("Status");
-                     o.Customer = new Customer(); 	//Dummy
-					      o.TotalCost = 0.0; 				//Dummy
-					      o.LineItems = new LineItem[1]; 	//Dummy
-					      o.ShippingAddress = rs.getString("ShippingAddress");
-					      o.BillingAddress = rs.getString("BillingAddress");
-					      o.BillingInfo = rs.getString("BillingInfo");
-				         orders.add(o);
-               }
-			   }
-		   } catch (SQLException e){
-			      e.printStackTrace();
-		   }
-
+		String query = "SELECT * FROM Orders "
+				+ "JOIN Customer on Customer.CustomerID = Orders.CustomerID "
+				+ "JOIN LineItems on LineItems.OrderID = Orders.OrderID "
+				+ "ORDER BY LineItems.OrderID";
+		try {
+			ResultSet rs = getResults(query);
+			if (rs != null) { 
+				//result set exists, manipulate here
+				int id = -1;
+				double cost = 0.0;
+				while(rs.next()){
+					if (rs.getInt("CustomerID") == c.CustomerID) {
+						Order o = new Order();
+						o.OrderID = rs.getInt("OrderID");
+						o.Customer = new Customer();
+						o.Customer.CustomerID = rs.getInt("CustomerID");
+						o.Customer.Name = rs.getString("FirstName") + rs.getString("LastName");
+						o.Customer.Email = rs.getString("Email");
+						o.OrderDate = new Date();
+						o.Status = rs.getString("Status");
+						if (o.OrderID == id) {
+							//Current lineitem row is in the same order as the previous one
+							// -> add to cost
+							cost +=  rs.getDouble("PricePaid") * rs.getInt("Quantity");
+						} else {
+							//This lineitem is for a different order than the previous one
+							// -> overwrite cost
+							cost =  rs.getDouble("PricePaid") * rs.getInt("Quantity");
+						}
+						
+						//assign total cost
+						o.TotalCost = cost;
+						o.BillingAddress = rs.getString("BillingAddress");
+						o.BillingInfo = rs.getString("BillingInfo");
+						o.ShippingAddress= rs.getString("ShippingAddress");
+						id = o.OrderID;
+						orders.add(o);
+					}
+				}
+			}
+		} catch (SQLException e){
+			e.printStackTrace();
+		}
 		   //return order
 		   return orders.toArray(new Order[orders.size()]);
 	   }
@@ -238,12 +257,11 @@ public class DatabaseAccess {
 		// Show an error message if you can not make the reservation.
 		String query = "SELECT AddressRecord FROM Customer WHERE Customer.CustomerID = " + c.CustomerID;
 		String address = "";
-		Date OrderDate = new Date();
+		Timestamp OrderDate = new Timestamp(new Date().getTime());
 		String Status = "Pending";
 		String BillingAddress = "";
 		String ShippingAddress = "";
 		String BillingInfo = "Visa";
-		System.out.println(c.CustomerID);
 		
 		try {
             ResultSet rs = getResults(query);
@@ -257,13 +275,11 @@ public class DatabaseAccess {
         } catch (SQLException e){
 		      e.printStackTrace();
 	    }
-		
-		java.sql.Date sqlDate = new java.sql.Date(OrderDate.getTime());
+
 		
 		String insert = "INSERT INTO Orders (OrderDate, BillingAddress, BillingInfo, ShippingAddress, Status, CustomerID) "
-				+ "VALUES (" + sqlDate + ", " + "'" + BillingAddress + "'" + ", " + "'" + BillingInfo + "'" + ", " + "'" + ShippingAddress + "'" + ", " + "'" + Status + "'" + ", " + c.CustomerID + ");";
+				+ "VALUES (" + OrderDate + ", " + "'" + BillingAddress + "'" + ", " + "'" + BillingInfo + "'" + ", " + "'" + ShippingAddress + "'" + ", " + "'" + Status + "'" + ", " + c.CustomerID + ");";
 		
-		System.out.println(insert);
 		try {
 			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 
