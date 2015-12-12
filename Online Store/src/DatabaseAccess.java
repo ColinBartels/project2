@@ -44,7 +44,6 @@ public class DatabaseAccess {
 				+ "JOIN LineItems on LineItems.OrderID = Orders.OrderID "
 				+ "WHERE Orders.Status = 'Pending' "
 				+ "ORDER BY LineItems.OrderID";
-;
 		try {
 			ResultSet rs = getResults(query);
 			if (rs != null) { 
