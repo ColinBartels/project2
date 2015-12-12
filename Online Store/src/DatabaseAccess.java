@@ -50,7 +50,8 @@ public class DatabaseAccess {
 				int id = -1;
 				double cost = 0.0;
 				while(rs.next()){
-					if (rs.getString("Status").equals("Pending")) {
+					if (rs.getString("Status").equals("Pending") ||
+							rs.getString("Status").equals("pending")) {
 						Order o = new Order();
 						o.OrderID = rs.getInt("OrderID");
 						o.Customer = new Customer();
