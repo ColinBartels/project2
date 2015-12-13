@@ -50,7 +50,6 @@ public class DatabaseAccess {
 				//result set exists, manipulate here
 				int id = -1;
 				double cost = 0.0;
-				int num = 0;
 				while(rs.next()){
 						Order o = new Order();
 						o.OrderID = rs.getInt("OrderID");
@@ -75,11 +74,11 @@ public class DatabaseAccess {
 						o.BillingAddress = rs.getString("BillingAddress");
 						o.BillingInfo = rs.getString("BillingInfo");
 						o.ShippingAddress= rs.getString("ShippingAddress");
+						if (o.OrderID != id) {
+							orders.add(o);
+						}
 						id = o.OrderID;
-						orders.add(o);
-						num++;
 					}
-				System.out.println(num);
 
 				}
 
@@ -120,9 +119,7 @@ public class DatabaseAccess {
 				+ "JOIN Customer on Customer.CustomerID = Orders.CustomerID "
 				+ "JOIN LineItems on LineItems.OrderID = Orders.OrderID "
 				+ "JOIN Products on Products.ItemID = LineItems.ProductID "
-				+ "JOIN Comments on Comments.ProductID = Products.ItemID "
-				+ "WHERE Orders.OrderID = " + OrderID
-				+ " ORDER BY Comments.ProductID";
+				+ "WHERE Orders.OrderID = " + OrderID;
 		
 		Order o = new Order();
 
@@ -164,17 +161,7 @@ public class DatabaseAccess {
 					p.Name = rs.getString("Name");
 					p.Price = rs.getDouble("Cost");
 					p.Description = rs.getString("Description");
-					
-					//comments to append to product
-					String comment = rs.getString("CommentText");
-					if (rs.getInt("ProductID") == commentId) {
-						//comment is for the same product as previous
-						comments.add(comment);
-						p.UserComments = comments.toArray(new String[comments.size()]);
-					} else {
-						//comment for different product
-						p.UserComments = new String[] {comment};
-					}	
+					p.UserComments = new String[0];
 					li.Product = p;
 					items.add(li);
 				}
@@ -278,8 +265,10 @@ public class DatabaseAccess {
 						o.BillingAddress = rs.getString("BillingAddress");
 						o.BillingInfo = rs.getString("BillingInfo");
 						o.ShippingAddress= rs.getString("ShippingAddress");
+						if (o.OrderID != id) {
+							orders.add(o);
+						}
 						id = o.OrderID;
-						orders.add(o);
 					}
 				}
 		} catch (SQLException e){
