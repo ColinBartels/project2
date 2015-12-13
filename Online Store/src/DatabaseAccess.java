@@ -50,6 +50,7 @@ public class DatabaseAccess {
 				//result set exists, manipulate here
 				int id = -1;
 				double cost = 0.0;
+				int num = 0;
 				while(rs.next()){
 						Order o = new Order();
 						o.OrderID = rs.getInt("OrderID");
@@ -76,13 +77,15 @@ public class DatabaseAccess {
 						o.ShippingAddress= rs.getString("ShippingAddress");
 						id = o.OrderID;
 						orders.add(o);
+						num++;
 					}
+				System.out.println(num);
+
 				}
-			
+
 		} catch (SQLException e){
 			e.printStackTrace();
 		}
-		
 		//return order array
 		return orders.toArray(new Order[orders.size()]);
 	}
@@ -333,11 +336,13 @@ public class DatabaseAccess {
 				address = rs.getString("AddressRecord");
 	        	BillingAddress = address;
 	        	ShippingAddress = address;
+	        	
+	        	
 				
 				String insertTableSQL = "INSERT INTO Orders"
 						+ " (OrderDate, BillingAddress, BillingInfo, ShippingAddress, Status, CustomerID) VALUES"
 						+ " (?,?,?,?,?,?)";
-				PreparedStatement preparedStatement = conn.prepareStatement(insertTableSQL);
+				PreparedStatement preparedStatement = conn.prepareStatement(insertTableSQL, Statement.RETURN_GENERATED_KEYS);
 				preparedStatement.setTimestamp(1, OrderDate);
 				preparedStatement.setString(2, BillingAddress);
 				preparedStatement.setString(3, BillingInfo);
@@ -346,11 +351,31 @@ public class DatabaseAccess {
 				preparedStatement.setInt(6, c.CustomerID);
 				preparedStatement.executeUpdate();
 				
+			   ResultSet id = preparedStatement.getGeneratedKeys();
+			   id.next();
+			   int auto_id = id.getInt(1);
+			   System.out.println(auto_id);
+				
+				for (int i = 0; i < LineItems.length; i++) {
+	        		LineItem current = LineItems[i];
+	        		String insertLineItem = "INSERT INTO LineItems"
+	        				+ " (OrderID, ProductID, Quantity, PricePaid) VALUES"
+	        				+ " (?,?,?,?)";
+	        		PreparedStatement itemStatement = conn.prepareStatement(insertLineItem);
+	        		itemStatement.setInt(1, auto_id);
+	        		itemStatement.setInt(2, current.Product.ProductID);
+	        		itemStatement.setInt(3, current.Quantity);
+	        		itemStatement.setDouble(4, current.PricePaid);
+	        		itemStatement.executeUpdate();
+	        	}
+	        	
+				
 				conn.commit();
 				JOptionPane.showMessageDialog(null, "Create order for " + c.Name + " for " + Integer.toString(LineItems.length) + " items.");
 			}catch(SQLException se) {
 				conn.rollback();
 				JOptionPane.showMessageDialog(null, "Order Insert Failed");
+				se.printStackTrace();
 			}
 			
 		} catch (Exception e) {
