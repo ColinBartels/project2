@@ -246,7 +246,8 @@ public class DatabaseAccess {
 		String query = "SELECT * FROM Orders "
 				+ "JOIN Customer on Customer.CustomerID = Orders.CustomerID "
 				+ "JOIN LineItems on LineItems.OrderID = Orders.OrderID "
-				+ "ORDER BY LineItems.OrderID";
+				+ "WHERE Customer.CustomerID = " + c.CustomerID
+				+ " ORDER BY LineItems.OrderID";
 		try {
 			ResultSet rs = getResults(query);
 			if (rs != null) { 
@@ -254,7 +255,6 @@ public class DatabaseAccess {
 				int id = -1;
 				double cost = 0.0;
 				while(rs.next()){
-					if (rs.getInt("CustomerID") == c.CustomerID) {
 						Order o = new Order();
 						o.OrderID = rs.getInt("OrderID");
 						o.Customer = new Customer();
@@ -282,7 +282,6 @@ public class DatabaseAccess {
 						orders.add(o);
 					}
 				}
-			}
 		} catch (SQLException e){
 			e.printStackTrace();
 		}
