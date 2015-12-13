@@ -1,5 +1,6 @@
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import javax.swing.JOptionPane;
 
@@ -305,6 +306,7 @@ public class DatabaseAccess {
 	                    
 	public static void MakeOrder(Customer c, LineItem [] LineItems)	{
 		// Show an error message if you can not make the transaction
+		System.out.println(Arrays.toString(LineItems));
 		String query = "SELECT AddressRecord FROM Customer WHERE Customer.CustomerID = " + c.CustomerID;
 		String address = "";
 		Timestamp OrderDate = new Timestamp(new Date().getTime());
@@ -350,10 +352,10 @@ public class DatabaseAccess {
 				preparedStatement.setInt(6, c.CustomerID);
 				preparedStatement.executeUpdate();
 				
-			   ResultSet id = preparedStatement.getGeneratedKeys();
-			   id.next();
-			   int auto_id = id.getInt(1);
-			   System.out.println(auto_id);
+			    ResultSet id = preparedStatement.getGeneratedKeys();
+			    id.next();
+			    int auto_id = id.getInt(1);
+			    System.out.println(auto_id);
 				
 				for (int i = 0; i < LineItems.length; i++) {
 	        		LineItem current = LineItems[i];
